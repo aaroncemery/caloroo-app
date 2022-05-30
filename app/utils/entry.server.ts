@@ -1,8 +1,11 @@
+import { json } from '@remix-run/node'
 import { prisma } from './prisma.server'
 import type { AddEntryForm } from './types.server'
 
 export const createEntry = async (entry: AddEntryForm) => {
-  const newEntry = await prisma.foodEntry.create({
+  console.log('in entry server')
+
+  return prisma.foodEntry.create({
     data: {
       title: entry.title,
       foodValues: {
@@ -11,7 +14,23 @@ export const createEntry = async (entry: AddEntryForm) => {
         carbohydrates: entry.carbohydrates,
         fat: entry.fat,
       },
+      user: {
+        connect: {
+          id: entry.user,
+        },
+      },
     },
   })
-  return { id: newEntry.id, title: entry.title }
+}
+
+export const getUserEntries = async (userId: string) => {
+  const entries = await prisma.foodEntry.findMany({
+    where: { userId: userId },
+  })
+
+  if (entries.length === 0) {
+    return json({ message: 'No entries yet.' })
+  }
+
+  return entries
 }

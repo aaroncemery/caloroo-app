@@ -31,16 +31,16 @@ model FoodEntry {
   foodValues FoodValues
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
-  User       User?      @relation(fields: [userId], references: [id], "FoodEntries")
+  user       User?      @relation(fields: [userId], references: [id], "FoodEntries")
   userId     String?    @db.ObjectId
 }
 
 type FoodValues {
-  units         units @default(grams)
-  calories      Int
-  protein       Int
-  carbohydrates Int
-  fat           Int
+  units         units  @default(grams)
+  calories      String
+  protein       String
+  carbohydrates String
+  fat           String
 }
 
 enum units {

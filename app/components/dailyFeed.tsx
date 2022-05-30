@@ -1,11 +1,13 @@
 import { styled } from '@stitches/react'
 import { Button } from './button'
+import { useNavigate } from '@remix-run/react'
 
 const Overview = styled('div', {
   padding: '16px',
 })
 
 export function DailyFeed() {
+  const navigate = useNavigate()
   return (
     <Overview>
       <div className="px-4 flex flex-row items-center justify-between mb-4">
@@ -23,7 +25,11 @@ export function DailyFeed() {
           chevron_right
         </button>
       </div>
-      <Button color="teal" borderRadius="medium">
+      <Button
+        onClick={() => navigate('/home/new-entry')}
+        color="teal"
+        borderRadius="medium"
+      >
         <span className="pr-1">+</span>
         Add Entry
       </Button>

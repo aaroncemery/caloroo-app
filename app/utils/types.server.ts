@@ -13,9 +13,10 @@ export interface LoginForm {
 export interface AddEntryForm {
   title: string
   units?: string
-  calories: number
-  protein: number
-  carbohydrates: number
-  fat: number
+  calories: string
+  protein: string
+  carbohydrates: string
+  fat: string
   date?: Date
+  user: string
 }

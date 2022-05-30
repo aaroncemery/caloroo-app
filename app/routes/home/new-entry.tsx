@@ -2,10 +2,17 @@ import { Modal } from '~/components/modal'
 import { FormField } from '~/components/form-field'
 import { useState } from 'react'
 import { Button } from '~/components/button'
-import { useActionData } from '@remix-run/react'
-import type { ActionFunction } from '@remix-run/node'
+import { useActionData, useLoaderData } from '@remix-run/react'
+import type { ActionFunction, LoaderFunction } from '@remix-run/node'
+import { redirect } from '@remix-run/node'
 import { json } from '@remix-run/node'
 import { createEntry } from '~/utils/entry.server'
+import { getUser, requireUserID } from '~/utils/auth.server'
+
+export const loader: LoaderFunction = async ({ request }) => {
+  const user = await getUser(request)
+  return json({ user })
+}
 
 export const action: ActionFunction = async ({ request }) => {
   const form = await request.formData()
@@ -14,22 +21,32 @@ export const action: ActionFunction = async ({ request }) => {
   const protein = form.get('protein')
   const carbohydrates = form.get('carbohydrates')
   const fat = form.get('fat')
+  const user = await requireUserID(request)
 
   if (
     typeof title !== 'string' ||
-    typeof calories !== 'number' ||
-    typeof protein !== 'number' ||
-    typeof carbohydrates !== 'number' ||
-    typeof fat !== 'number'
+    typeof calories !== 'string' ||
+    typeof protein !== 'string' ||
+    typeof carbohydrates !== 'string' ||
+    typeof fat !== 'string'
   ) {
     return json({ error: 'Invalid Form Data' }, { status: 400 })
   }
 
-  return await createEntry({ title, calories, protein, carbohydrates, fat })
+  await createEntry({
+    title,
+    calories,
+    protein,
+    carbohydrates,
+    fat,
+    user,
+  })
+  return redirect('/home')
 }
 
 export default function FoodEntryModal() {
   const actionData = useActionData()
+  const [formError] = useState(actionData?.error || '')
   const [formData, setFormData] = useState({
     title: actionData?.fields?.title || '',
     calories: actionData?.fields?.calories || '',
@@ -37,10 +54,11 @@ export default function FoodEntryModal() {
     carbohydrates: actionData?.fields?.carbohydrates || '',
     fat: actionData?.fields?.fat || '',
   })
+  const { user } = useLoaderData()
 
   const handleInputChange = (
     event: React.ChangeEvent<HTMLInputElement>,
-    field: string
+    field: string | number
   ) => {
     setFormData(form => ({
       ...form,
@@ -50,6 +68,7 @@ export default function FoodEntryModal() {
   return (
     <Modal isOpen={true}>
       <h2 className="text-xl font-bold text-center">Entry Details</h2>
+      <div>{formError}</div>
       <form method="post">
         <FormField
           htmlFor="title"
@@ -72,7 +91,7 @@ export default function FoodEntryModal() {
           onChange={e => handleInputChange(e, 'protein')}
         />
         <FormField
-          htmlFor="carbs"
+          htmlFor="carbohydrates"
           type="number"
           label="Carbohydrates"
           value={formData.carbohydrates}
@@ -85,7 +104,7 @@ export default function FoodEntryModal() {
           value={formData.fat}
           onChange={e => handleInputChange(e, 'fat')}
         />
-        <Button color="teal" borderRadius="medium">
+        <Button type="submit" color="teal" borderRadius="medium">
           Add Entry
         </Button>
       </form>
