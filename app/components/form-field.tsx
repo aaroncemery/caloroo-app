@@ -5,7 +5,7 @@ const Input = styled('input', {
   width: '100%',
   padding: '12px',
   borderRadius: '12px',
-  boxShadow: '0 0 1px rgb(148 163 184 / var(--tw-border-opacity))',
+  boxShadow: '0 0 2px rgb(148 163 184)',
   transition: 'all 150ms ease',
   '&:focus': {
     outlineColor: 'black',

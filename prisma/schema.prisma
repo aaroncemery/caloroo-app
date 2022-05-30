@@ -11,15 +11,39 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  email     String   @unique
-  password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  profile   Profile
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  email       String      @unique
+  password    String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  profile     Profile
+  foodEntries FoodEntry[] @relation("FoodEntries")
 }
 
 type Profile {
   firstName String
   lastName  String
+}
+
+model FoodEntry {
+  id         String     @id @default(auto()) @map("_id") @db.ObjectId
+  title      String
+  foodValues FoodValues
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  User       User?      @relation(fields: [userId], references: [id], "FoodEntries")
+  userId     String?    @db.ObjectId
+}
+
+type FoodValues {
+  units         units @default(grams)
+  calories      Int
+  protein       Int
+  carbohydrates Int
+  fat           Int
+}
+
+enum units {
+  grams
+  ounces
 }
